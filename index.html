@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice-Enabled Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        #chatbox {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .user-message {
+            text-align: right;
+            color: blue;
+        }
+        .bot-message {
+            text-align: left;
+            color: green;
+        }
+        .response-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .response-buttons button {
+            padding: 8px 12px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Voice-Enabled Chatbot</h2>
+    <div id="chatbox"></div>
+
+    <!-- Voice and quick response buttons -->
+    <div class="response-buttons">
+        <button onclick="sendMessage('Hi')">Hi</button>
+        <button onclick="sendMessage('How are you?')">How are you?</button>
+        <button onclick="sendMessage('What is your name?')">What is your name?</button>
+        <button onclick="sendMessage('Who created you?')">Who created you?</button>
+        <button onclick="sendMessage('Tell me about the weather')">Tell me about the weather</button>
+        <button onclick="sendMessage('I need help')">I need help</button>
+        <button onclick="sendMessage('What is your purpose?')">What is your purpose?</button>
+        <button onclick="sendMessage('Goodbye')">Goodbye</button>
+    </div>
+    <button onclick="startListening()">🎤 Speak</button>
+
+    <script>
+        const responses = {
+            "hi|hello|hey": "Hello! How can I help you today?",
+            "how are you": "I'm just a bot, but thanks for asking! How can I assist you?",
+            "what is your name": "I'm a chatbot created to assist you!",
+            "who created you|who made you": "I was created by a developer who wanted to make your life easier!",
+            "bye|goodbye": "Goodbye! Have a great day!",
+            ".*weather.*": "I can't check the weather, but you can look it up online!",
+            ".*help.*": "I'm here to help! What do you need assistance with?",
+            ".*your purpose.*|.*what do you do.*": "I'm here to chat with you and help answer your questions!",
+            ".*": "I'm sorry, I didn't understand that. Could you please rephrase?"
+        };
+
+        function getResponse(input) {
+            for (const pattern in responses) {
+                const regex = new RegExp(pattern, 'i');
+                if (regex.test(input)) {
+                    return responses[pattern];
+                }
+            }
+            return "I'm sorry, I didn't understand that.";
+        }
+
+        function addMessage(message, className) {
+            const chatbox = document.getElementById("chatbox");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = className;
+            messageDiv.textContent = message;
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function sendMessage(userMessage) {
+            addMessage(`You: ${userMessage}`, "user-message");
+            const botResponse = getResponse(userMessage);
+            addMessage(`Bot: ${botResponse}`, "bot-message");
+            speak(botResponse);  // Speak the bot response
+
+            if (/bye|goodbye/i.test(userMessage)) {
+                addMessage("Bot: Goodbye! Have a great day!", "bot-message");
+                disableButtons();
+            }
+        }
+
+        function disableButtons() {
+            const buttons = document.querySelectorAll(".response-buttons button");
+            buttons.forEach(button => button.disabled = true);
+        }
+
+        // Voice Recognition
+        function startListening() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-US';
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                addMessage(`You: ${transcript}`, "user-message");
+                const botResponse = getResponse(transcript);
+                addMessage(`Bot: ${botResponse}`, "bot-message");
+                speak(botResponse);  // Speak the bot response
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error:", event.error);
+            };
+        }
+
+        // Speech Synthesis (Text-to-Speech)
+        function speak(text) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            synth.speak(utterance);
+        }
+    </script>
+</body>
+</html>
