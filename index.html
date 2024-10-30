@@ -3,13 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice-Enabled Chatbot</title>
+    <title>Tavas atmiņas treneris</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             max-width: 600px;
             margin: auto;
             padding: 20px;
+            background-color: #f5f5f5; /* Light background for better contrast */
+            color: #333; /* Dark text for readability */
+        }
+        h2 {
+            text-align: center;
+            font-size: 32px; /* Larger heading */
         }
         #chatbox {
             border: 1px solid #ccc;
@@ -17,56 +23,87 @@
             height: 300px;
             overflow-y: auto;
             margin-bottom: 10px;
+            background-color: #ffffff; /* White background for chatbox */
+            border-radius: 8px; /* Rounded corners */
         }
         .user-message {
             text-align: right;
             color: blue;
+            font-size: 20px; /* Larger font for user messages */
         }
         .bot-message {
             text-align: left;
             color: green;
+            font-size: 20px; /* Larger font for bot messages */
         }
         .response-buttons {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             margin-top: 10px;
+            justify-content: center; /* Center buttons */
         }
         .response-buttons button {
-            padding: 8px 12px;
-            font-size: 16px;
+            padding: 20px 30px; /* Larger padding for buttons */
+            font-size: 28px; /* Larger font size for buttons */
             cursor: pointer;
+            background-color: #e0e0e0; /* Soft grey button color */
+            border: none;
+            border-radius: 5px; /* Rounded corners for buttons */
+            transition: background-color 0.3s; /* Smooth color transition */
+        }
+        .response-buttons button:hover {
+            background-color: #d0d0d0; /* Slightly darker on hover */
+        }
+        .speak-button {
+            padding: 20px 30px;
+            font-size: 28px;
+            cursor: pointer;
+            background-color: #007BFF; /* Soft blue for speak button */
+            color: white; /* White text for speak button */
+            border: none;
+            border-radius: 5px; /* Rounded corners for speak button */
+            width: 100%; /* Full width */
+        }
+        .speak-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        #recording-icon {
+            display: none; /* Hidden by default */
+            font-size: 48px; /* Larger icon */
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <h2>Voice-Enabled Chatbot</h2>
+    <h2>Elzas čatiņš</h2>
     <div id="chatbox"></div>
 
-    <!-- Voice and quick response buttons -->
     <div class="response-buttons">
-        <button onclick="sendMessage('Hi')">Hi</button>
-        <button onclick="sendMessage('How are you?')">How are you?</button>
-        <button onclick="sendMessage('What is your name?')">What is your name?</button>
-        <button onclick="sendMessage('Who created you?')">Who created you?</button>
-        <button onclick="sendMessage('Tell me about the weather')">Tell me about the weather</button>
-        <button onclick="sendMessage('I need help')">I need help</button>
-        <button onclick="sendMessage('What is your purpose?')">What is your purpose?</button>
-        <button onclick="sendMessage('Goodbye')">Goodbye</button>
+        <button onclick="sendMessage('Hi')">Labrīt</button>
+        <button onclick="sendMessage('How are you?')">Kā Tev iet?</button>
+        <button onclick="sendMessage('What is your name?')">Kāds ārā laiks?</button>
+        <button onclick="sendMessage('Plans for today?')">Ko šodien darīsi?</button>
+        <button onclick="sendMessage('Matemātika')">Matemātikas uzdevums</button>
+        <button onclick="sendMessage('Memory')">Atmiņas treniņš</button>
+        <button onclick="sendMessage('Medicine?')">Vai zāles izdzertas?</button>
+        <button onclick="sendMessage('Atā')">Atā</button>
     </div>
-    <button onclick="startListening()">🎤 Speak</button>
+    <button class="speak-button" onclick="startListening()">🎤 Speak</button>
+    <div id="recording-icon">🔴 Recording...</div> <!-- Recording icon -->
 
     <script>
         const responses = {
-            "hi|hello|hey": "Hello! How can I help you today?",
-            "how are you": "I'm just a bot, but thanks for asking! How can I assist you?",
-            "what is your name": "I'm a chatbot created to assist you!",
-            "who created you|who made you": "I was created by a developer who wanted to make your life easier!",
-            "bye|goodbye": "Goodbye! Have a great day!",
-            ".*weather.*": "I can't check the weather, but you can look it up online!",
-            ".*help.*": "I'm here to help! What do you need assistance with?",
-            ".*your purpose.*|.*what do you do.*": "I'm here to chat with you and help answer your questions!",
-            ".*": "I'm sorry, I didn't understand that. Could you please rephrase?"
+            "hi|hello|hey": "labrit.mp3",
+            "how are you": "how_are_you.mp3",
+            "what is your name": "what_is_your_name.mp3",
+            "who created you|who made you": "who_created_you.mp3",
+            "bye|goodbye": "goodbye.mp3",
+            ".*weather.*": "weather.mp3",
+            ".*help.*": "help.mp3",
+            ".*your purpose.*|.*what do you do.*": "purpose.mp3",
+            ".*": "unknown.mp3" // Response for unrecognized queries
         };
 
         function getResponse(input) {
@@ -76,7 +113,7 @@
                     return responses[pattern];
                 }
             }
-            return "I'm sorry, I didn't understand that.";
+            return responses[".*"]; // Default response for unrecognized queries
         }
 
         function addMessage(message, className) {
@@ -89,13 +126,13 @@
         }
 
         function sendMessage(userMessage) {
-            addMessage(`You: ${userMessage}`, "user-message");
-            const botResponse = getResponse(userMessage);
-            addMessage(`Bot: ${botResponse}`, "bot-message");
-            speak(botResponse);  // Speak the bot response
+            // Instead of showing user input, we just show a bot message
+            const audioFile = getResponse(userMessage);
+            addMessage(`Uzmanīgi klausos...`, "bot-message"); // Inform that the bot is responding
+            playAudio(audioFile);  // Play the audio response
 
             if (/bye|goodbye/i.test(userMessage)) {
-                addMessage("Bot: Goodbye! Have a great day!", "bot-message");
+                addMessage("Atā, lai forša diena!", "bot-message");
                 disableButtons();
             }
         }
@@ -105,31 +142,37 @@
             buttons.forEach(button => button.disabled = true);
         }
 
+        // Play audio function
+        function playAudio(file) {
+            const audio = new Audio(file);
+            audio.play();
+        }
+
         // Voice Recognition
         function startListening() {
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'en-US';
+            document.getElementById('recording-icon').style.display = 'block'; // Show recording icon
             recognition.start();
 
             recognition.onresult = function(event) {
+                // Get the user's input from the result
                 const transcript = event.results[0][0].transcript;
-                addMessage(`You: ${transcript}`, "user-message");
-                const botResponse = getResponse(transcript);
-                addMessage(`Bot: ${botResponse}`, "bot-message");
-                speak(botResponse);  // Speak the bot response
+                addMessage(`You: ${transcript}`, "user-message"); // Optional: if you want to keep this for record
+                const audioFile = getResponse(transcript);
+                addMessage(`Bot is responding...`, "bot-message"); // Inform that the bot is responding
+                playAudio(audioFile);  // Play the audio response
+                document.getElementById('recording-icon').style.display = 'none'; // Hide recording icon
             };
 
             recognition.onerror = function(event) {
                 console.error("Speech recognition error:", event.error);
+                document.getElementById('recording-icon').style.display = 'none'; // Hide recording icon on error
             };
-        }
 
-        // Speech Synthesis (Text-to-Speech)
-        function speak(text) {
-            const synth = window.speechSynthesis;
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            synth.speak(utterance);
+            recognition.onend = function() {
+                document.getElementById('recording-icon').style.display = 'none'; // Hide recording icon when done
+            };
         }
     </script>
 </body>
