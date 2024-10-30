@@ -1,0 +1,1 @@
+This is a startschool project to build a chatbot that would help my grandma's memory training.
