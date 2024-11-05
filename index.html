@@ -19,8 +19,8 @@
         }
         #chatbox {
             border: 1px solid #ccc;
-            padding: 10px;
-            height: 300px;
+            padding: 5px;
+            height: 200px;
             overflow-y: auto;
             margin-bottom: 10px;
             background-color: #ffffff; /* White background for chatbox */
@@ -157,8 +157,8 @@
 
             recognition.onresult = function(event) {
                 // Get the user's input from the result
-                const transcript = event.results[0][0].transcript;
-                addMessage(`You: ${transcript}`, "user-message"); // Optional: if you want to keep this for record
+                //const transcript = event.results[0][0].transcript;
+               // addMessage(`You: ${transcript}`, "user-message"); // Optional: if you want to keep this for record
                 const audioFile = getResponse(transcript);
                 addMessage(`Bot is responding...`, "bot-message"); // Inform that the bot is responding
                 playAudio(audioFile);  // Play the audio response
